@@ -11,5 +11,5 @@
   :repl-options {:init-ns seed.core}
   :profiles {:uberjar {:aot          :all
                        :omit-source  true
-                       :uberjar-name "seed-standalone.jar"}}
+                       :uberjar-name "seed.jar"}}
   :main seed.core)

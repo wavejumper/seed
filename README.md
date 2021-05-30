@@ -8,11 +8,14 @@ After files have been transferred to a local directory, arbitrary hooks can also
 
 seed is configured using EDN.
 
+seed currently only supports the sFTP protocol for sources.
+
 ## Getting started
 
 ```bash
-git clone ...
-clojure -m seed.core /path/to/config.edn
+git clone git@github.com:wavejumper/seed.git
+lein uberjar
+java -jar target/seed config.edn
 ```
 
 ## Example configuration
@@ -26,7 +29,6 @@ clojure -m seed.core /path/to/config.edn
 
  :sftp/source                  {:pool    #ig/ref :sftp/pool
                                 :dir     "/media/files"
-                                :cache   "cache.edn"
                                 :poll-ms 60000
                                 :depth   3
                                 :targets #ig/refset :sftp/target}
@@ -46,15 +48,16 @@ Configuration is defined as an EDN file, which is just an [integrant config map]
 
 This section documents the available integrant components and ways they can be [composed](https://github.com/weavejester/integrant#composite-keys) together
 
-### :sftp/client
+### :sftp/pool
 
-Defines a `com.jcraft.jsch.JSch` instance:
+Defines a `com.jcraft.jsch.JSch` connection pool:
 
 * `username` - username for session
 * `password` - password for session
 * `port` - port for connection (default : 22)
 * `host` - the host for connection
 * `known-hosts` - path to known_hosts file, default `~/.ssh/known_hosts`
+* `n-conns` - the number of connections in the pool (default: 5)
 
 ### :sftp/source
 
@@ -69,13 +72,29 @@ A source polls for new files from a remote host at a specified interval:
 
 ### :sftp/target
 
-A target is a local directory, and the destination for new files to be copied from a source.
+A target is a local directory that is the destination for new files to be copied from a source.
 
-A target contains a collection of filters, which can 
+A target contains a collection of filters. If a new file from the source matches every filter, it will be copied to the target destination.
+
+* `dir` - the local directory
+* `filters` - a collection of filters. A filter is a tuple of `[:id & args]`
+
+#### Custom filters
+
+You can add your own custom filters by extending the `seed.core/filter-fn` multimethod.
+
+For example, `:some-ext` is implemented as:
+
+```clojure 
+(defmethod filter-fn :some-ext
+  [[_ exts]]
+  (fn [{:keys [filename]}]
+    (some #(str/ends-with? filename %) exts)))
+```
 
 ## License
 
-Copyright © 2021 FIXME
+Copyright © 2021
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
