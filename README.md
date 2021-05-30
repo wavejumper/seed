@@ -59,6 +59,16 @@ Defines a `com.jcraft.jsch.JSch` connection pool:
 * `known-hosts` - path to known_hosts file, default `~/.ssh/known_hosts`
 * `n-conns` - the number of connections in the pool (default: 5)
 
+#### Notes on known-hosts
+
+JSch prefers a known_hosts file in the RSA format. 
+
+If JSch fails to read `~/.ssh/known-hosts`, you can create a known_hosts file using the RSA format like so:
+
+```bash 
+ssh-keyscan -H -t rsa example.org >> known_hosts
+```
+
 ### :sftp/source
 
 A source polls for new files from a remote host at a specified interval:
