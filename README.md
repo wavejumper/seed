@@ -15,7 +15,7 @@ seed currently only supports the sFTP protocol for sources.
 ```bash
 git clone git@github.com:wavejumper/seed.git
 lein uberjar
-java -jar target/seed config.edn
+java -jar target/seed.jar config.edn
 ```
 
 ## Example configuration
